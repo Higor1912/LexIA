@@ -6,8 +6,10 @@ def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = "light"
     page.padding = 20
-    page.window_width = 400
-    page.window_height = 600
+    page.window_width = 800  # Largura fixa
+    page.window_height = 600  # Altura fixa
+    page.window_resizable = False  # Impede o redimensionamento
+    page.window_maximizable = False  # Impede a maximização
     
     # Área de chat
     chat_history = ft.Column(
