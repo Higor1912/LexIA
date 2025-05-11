@@ -1,10 +1,17 @@
 import flet as ft
 import os
+import subprocess
+import requests
+
+# Configuração da API
+API_URL = "http://localhost:3001/pergunta"
+
+subprocess.Popen(["node", "../backend/server.js"])
 
 def main(page: ft.Page):
     # Configurações da página
-    page.title = "LexIA"
-    page.theme_mode = "light"
+    page.title = "LexIA - Assistente Jurídico"
+    page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
     page.window_width = 800  # Largura fixa
     page.window_height = 600  # Altura fixa
@@ -18,20 +25,13 @@ def main(page: ft.Page):
         spacing=10,
     )
 
-    # Campo de entrada
-    message_input = ft.TextField(
-        hint_text="Digite sua dúvida jurídica aqui...",
-        border_radius=8,
-        expand=True
-    )
-
     def send_message(e):
-        user_message = message_input.value
-        if user_message and user_message.strip():  # Verifica se há mensagem e não é só espaço
+        user_message = message_input.value.strip()
+        if user_message:
             # Adiciona mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(user_message),
+                    content=ft.Text(user_message, selectable=True),
                     bgcolor="#BBDEFB",
                     padding=10,
                     border_radius=8,
@@ -39,11 +39,42 @@ def main(page: ft.Page):
                 )
             )
             
-            # Simula resposta do assistente
-            response = "Esta é uma resposta simulada do assistente jurídico."
+            # Adiciona indicador de "pensando"
+            thinking_indicator = ft.Container(
+                content=ft.Text("Pensando...", selectable=True),
+                bgcolor="#F5F5F5",
+                padding=10,
+                border_radius=8,
+                alignment=ft.alignment.center_left
+            )
+            chat_history.controls.append(thinking_indicator)
+            page.update()
+            
+            # Faz a requisição para a API
+            try:
+                response = requests.post(
+                    API_URL, 
+                    json={"pergunta": user_message},
+                    timeout=30  # Adiciona timeout para evitar espera infinita
+                )
+                if response.status_code == 200:
+                    assistant_response = response.json().get("resposta", "Não consegui entender.")
+                else:
+                    assistant_response = f"Erro no servidor: {response.status_code}"
+                    if response.text:
+                        assistant_response += f"\nDetalhes: {response.text}"
+            except requests.Timeout:
+                assistant_response = "Tempo excedido ao aguardar resposta do servidor."
+            except requests.ConnectionError:
+                assistant_response = "Não foi possível conectar ao servidor."
+            except Exception as ex:
+                assistant_response = f"Erro inesperado: {str(ex)}"
+
+            # Remove o indicador de "pensando" e adiciona a resposta
+            chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(response),
+                    content=ft.Text(assistant_response, selectable=True),
                     bgcolor="#F5F5F5",
                     padding=10,
                     border_radius=8,
@@ -51,9 +82,19 @@ def main(page: ft.Page):
                 )
             )
             
-            message_input.value = ""  # Limpa o campo
-            message_input.focus()  # Mantém o foco no campo de texto
+            message_input.value = ""
+            message_input.focus()
             page.update()
+
+    # Campo de entrada modificado
+    message_input = ft.TextField(
+        label="Digite sua dúvida jurídica",
+        hint_text="Digite sua dúvida jurídica aqui...",
+        border_radius=8,
+        expand=True,
+        on_submit=send_message,  # Adiciona o handler para o evento Enter
+        shift_enter=True,  # Permite usar Shift+Enter para nova linha
+    )
 
     def set_message(text):
         message_input.value = text
@@ -116,6 +157,24 @@ def main(page: ft.Page):
         wrap=True,  # Permite que os cards quebrem em múltiplas linhas
     )
 
+    # Layout da barra de entrada
+    input_row = ft.Row(
+        controls=[
+            message_input,
+            ft.Container(
+                content=ft.IconButton(
+                    icon="send",
+                    on_click=send_message,
+                    bgcolor="#2196F3",
+                    icon_color="white"
+                ),
+                margin=ft.margin.only(left=10),
+            )
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        spacing=40,
+    )
+
     # Layout principal
     page.add(
         ft.Container(
@@ -140,22 +199,7 @@ def main(page: ft.Page):
                 ),
                 chat_history,
                 suggestion_cards,
-                ft.Row(
-                    controls=[
-                        message_input,
-                        ft.Container(  # Adicionando um Container em volta do IconButton
-                            content=ft.IconButton(
-                                icon="send",
-                                on_click=send_message,
-                                bgcolor="#2196F3",
-                                icon_color="white"
-                            ),
-                            margin=ft.margin.only(left=10),  # Margem à esquerda do botão
-                        )
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                    spacing=40,  # Aumentado o espaçamento
-                )
+                input_row  # Usa a nova Row configurada
             ]),
             expand=True
         )
