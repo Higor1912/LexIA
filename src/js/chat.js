@@ -1,26 +1,25 @@
-import { legalAssistant } from './api.js';
+import { LegalAssistantAPI } from './api.js';
 
 class Chat {
     constructor() {
-        this.initialize();
-    }
-
-    initialize() {
+        this.api = new LegalAssistantAPI();
         this.messageInput = document.getElementById('messageInput');
         this.sendButton = document.getElementById('sendButton');
         this.chatArea = document.querySelector('.chat-area');
-        
-        // Adiciona os event listeners
-        this.sendButton.addEventListener('click', () => this.handleSubmit());
-        this.messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.handleSubmit();
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                this.sendMessage();
             }
         });
     }
 
-    async handleSubmit() {
+    async sendMessage() {
         const message = this.messageInput.value.trim();
         
         if (message) {
@@ -30,27 +29,17 @@ class Chat {
             // Limpa o input
             this.messageInput.value = '';
             
+            // Adiciona indicador de digitação
+            const loadingDiv = this.addLoadingIndicator();
+            
             try {
-                // Adiciona indicador de digitação
-                const loadingDiv = this.addLoadingIndicator();
-                
-                // Envia mensagem para API
-                const response = await legalAssistant.sendMessage(message);
-                
-                // Remove o indicador de digitação
+                // Chama a API
+                const response = await this.api.sendMessage(message);
                 loadingDiv.remove();
-                
-                if (response.success) {
-                    this.addMessageToChat(response.answer);
-                    
-                    if (response.disclaimer) {
-                        this.addMessageToChat(response.disclaimer);
-                    }
-                } else {
-                    this.addMessageToChat('Desculpe, ocorreu um erro ao processar sua mensagem.');
-                }
+                this.addMessageToChat(response);
             } catch (error) {
                 console.error('Erro:', error);
+                loadingDiv.remove();
                 this.addMessageToChat('Desculpe, ocorreu um erro ao processar sua mensagem.');
             }
         }
@@ -83,7 +72,4 @@ class Chat {
     }
 }
 
-// Inicializa o chat quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', () => {
-    new Chat();
-});
+export default Chat;

@@ -1,6 +1,9 @@
-class LegalAssistantAPI {
+import 'dotenv/config';
+
+export class LegalAssistantAPI {
     constructor() {
-        this.API_KEY = process.env.GEMINI_API_KEY;
+        // Chave API diretamente no código (para desenvolvimento)
+        this.API_KEY = 'AIzaSyDRMPZ7IBZxemeMv1JaaoGZ_I53y1OpjPI';
         this.API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
     }
 
@@ -14,27 +17,10 @@ class LegalAssistantAPI {
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `Você é um assistente jurídico especializado. 
-                                  Por favor, responda a seguinte questão de forma 
-                                  profissional e precisa: ${userMessage}`
+                            text: `Você é um assistente jurídico especializado em direito brasileiro. 
+                                  Responda a seguinte questão: ${userMessage}`
                         }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.7,
-                        topK: 40,
-                        topP: 0.95,
-                        maxOutputTokens: 1024,
-                    },
-                    safetySettings: [
-                        {
-                            category: "HARM_CATEGORY_HARASSMENT",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        },
-                        {
-                            category: "HARM_CATEGORY_HATE_SPEECH",
-                            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                        }
-                    ]
+                    }]
                 })
             });
 
@@ -43,36 +29,11 @@ class LegalAssistantAPI {
             }
 
             const data = await response.json();
-            return {
-                success: true,
-                message: data.candidates[0].content.parts[0].text,
-                timestamp: new Date().toISOString()
-            };
+            return data.candidates[0].content.parts[0].text;
 
         } catch (error) {
-            console.error('Erro ao enviar mensagem:', error);
-            return {
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            };
+            console.error('Erro ao chamar API:', error);
+            throw error;
         }
     }
-
-    // Método para validar mensagens relacionadas a questões jurídicas
-    validateLegalQuery(message) {
-        // Implementar validações específicas para consultas jurídicas
-        return message.length > 0;
-    }
-
-    // Método para formatar a resposta em um formato mais amigável
-    formatLegalResponse(response) {
-        return {
-            answer: response.message,
-            disclaimer: "Este é um serviço de assistência jurídica automatizado. Para questões específicas, consulte um advogado.",
-            timestamp: response.timestamp
-        };
-    }
 }
-
-export const legalAssistant = new LegalAssistantAPI();
