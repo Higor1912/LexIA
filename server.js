@@ -1,33 +1,21 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
+const port = process.env.PORT || 3001; // Usa a variável de ambiente ou 3001 como fallback
 
-// Middleware para processar JSON
+app.use(cors());
 app.use(express.json());
+app.use(express.static(join(__dirname, 'src')));
 
-// Servir arquivos estáticos
-app.use(express.static(path.join(__dirname, 'src')));
-
-// Rota para a API de chat
-app.post('/api/chat', (req, res) => {
-    try {
-        const { message } = req.body;
-        console.log('Mensagem recebida:', message);
-        
-        // Aqui você pode adicionar sua lógica de processamento
-        res.json({ success: true, reply: 'Mensagem recebida com sucesso!' });
-    } catch (error) {
-        console.error('Erro:', error);
-        res.status(500).json({ success: false, error: 'Erro interno do servidor' });
-    }
-});
-
-// Rota principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}`);
 });
