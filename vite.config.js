@@ -1,13 +1,19 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: './src',
   build: {
     outDir: '../dist',
+    sourcemap: true,
     emptyOutDir: true
   },
   server: {
-    port: 3000,
+    port: 5173,
     open: true
+  },
+  resolve: {
+    alias: {
+      '@': '/js'
+    }
   }
-})
+});
