@@ -1,5 +1,6 @@
 import flet as ft
 import requests
+import os
 
 API_URL = "http://localhost:3001/pergunta"
 
@@ -227,5 +228,6 @@ def main(page: ft.Page):
             alignment=ft.alignment.center,
         )
     )
-
-ft.app(target=main, view=ft.WEB_BROWSER, port=10000)
+    
+port = int(os.environ.get("PORT", 8000))
+ft.app(target=main, view=None, port=10000)
