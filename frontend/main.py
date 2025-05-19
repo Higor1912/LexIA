@@ -20,7 +20,7 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Adiciona mensagem do usuário
+            # Mensagem do usuário
             chat_history.controls.append(
                 ft.Row(
                     alignment=ft.MainAxisAlignment.END,
@@ -37,7 +37,7 @@ def main(page: ft.Page):
                 )
             )
 
-            # Indicador "Pensando..."
+            # Indicador "pensando"
             thinking = ft.Row(
                 alignment=ft.MainAxisAlignment.START,
                 controls=[
@@ -54,7 +54,7 @@ def main(page: ft.Page):
             chat_history.controls.append(thinking)
             page.update()
 
-            # Envia requisição à API
+            # Requisição para API
             try:
                 response = requests.post(
                     API_URL,
@@ -72,7 +72,7 @@ def main(page: ft.Page):
             except Exception as ex:
                 assistant_response = f"⚠️ Erro inesperado: {str(ex)}"
 
-            # Remove "Pensando..." e adiciona resposta
+            # Remove indicador e mostra resposta
             chat_history.controls.remove(thinking)
             chat_history.controls.append(
                 ft.Row(
@@ -96,7 +96,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
-    # Campo de entrada de mensagem
+    # Campo de entrada
     message_input = ft.TextField(
         hint_text="Digite sua dúvida jurídica aqui...",
         border_radius=20,
@@ -106,7 +106,7 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    # Botão de envio (usando string no lugar de ícone)
+    # Botão de envio (sem usar ft.icons)
     send_button = ft.IconButton(
         icon="send",
         tooltip="Enviar",
@@ -119,38 +119,46 @@ def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.CENTER
     )
 
-    # Função para preencher input com sugestão
     def set_message(text):
         message_input.value = text
         send_message(None)
 
-    # Sugestões de temas jurídicos
+    # Cartões de sugestões — compatível com versões antigas
     def get_suggestion_cards():
         return ft.Column(
             spacing=10,
             controls=[
-                ft.ElevatedButton(
-                    text="📚 Direito Civil",
-                    on_click=lambda _: set_message("Explique sobre direito civil"),
+                ft.Container(
+                    content=ft.TextButton(
+                        text="📚 Direito Civil",
+                        on_click=lambda _: set_message("Explique sobre direito civil")
+                    ),
                     bgcolor="#E3F2FD",
-                    color="black"
+                    border_radius=8,
+                    padding=10
                 ),
-                ft.ElevatedButton(
-                    text="⚖️ Direito Penal",
-                    on_click=lambda _: set_message("Explique sobre direito penal"),
+                ft.Container(
+                    content=ft.TextButton(
+                        text="⚖️ Direito Penal",
+                        on_click=lambda _: set_message("Explique sobre direito penal")
+                    ),
                     bgcolor="#E8F5E9",
-                    color="black"
+                    border_radius=8,
+                    padding=10
                 ),
-                ft.ElevatedButton(
-                    text="📝 Contratos",
-                    on_click=lambda _: set_message("Como fazer um contrato?"),
+                ft.Container(
+                    content=ft.TextButton(
+                        text="📝 Contratos",
+                        on_click=lambda _: set_message("Como fazer um contrato?")
+                    ),
                     bgcolor="#FFFDE7",
-                    color="black"
-                ),
+                    border_radius=8,
+                    padding=10
+                )
             ]
         )
 
-    # Layout principal da página
+    # Layout final
     page.add(
         ft.Column(
             [
@@ -182,5 +190,4 @@ def main(page: ft.Page):
 
     message_input.focus()
 
-# Inicializa o app
 ft.app(target=main, view=ft.WEB_BROWSER)
