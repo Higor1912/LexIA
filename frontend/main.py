@@ -8,7 +8,6 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
 
-    # Responsividade: ajusta largura máxima do conteúdo
     max_content_width = 600
 
     chat_history = ft.Column(
@@ -38,9 +37,10 @@ def main(page: ft.Page):
             )
             chat_history.controls.append(thinking_indicator)
             page.update()
+
             try:
                 response = requests.post(
-                    API_URL, 
+                    API_URL,
                     json={"pergunta": user_message},
                     timeout=30
                 )
@@ -56,6 +56,7 @@ def main(page: ft.Page):
                 assistant_response = "Não foi possível conectar ao servidor."
             except Exception as ex:
                 assistant_response = f"Erro inesperado: {str(ex)}"
+
             chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
@@ -83,10 +84,8 @@ def main(page: ft.Page):
         message_input.value = text
         page.update()
 
-    # Responsividade: cards em coluna em telas pequenas
     def get_suggestion_cards():
         if page.width and page.width < 500:
-            # Coluna para telas pequenas
             return ft.Column(
                 controls=[
                     ft.Container(
@@ -130,7 +129,6 @@ def main(page: ft.Page):
                 spacing=10,
             )
         else:
-            # Linha para telas médias/grandes
             return ft.Row(
                 controls=[
                     ft.Container(
@@ -180,7 +178,6 @@ def main(page: ft.Page):
     def on_resize(e):
         nonlocal suggestion_cards
         suggestion_cards = get_suggestion_cards()
-        # Atualiza o layout principal
         main_column.controls[3] = suggestion_cards
         page.update()
 
@@ -205,18 +202,14 @@ def main(page: ft.Page):
 
     main_column = ft.Column([
         ft.Container(
-            content=ft.Text(
-                "LexIA",
-                size=24 if not page.width or page.width > 500 else 18,
-                weight=ft.FontWeight.BOLD
-            ),
+            content=ft.Text("LexIA", size=24, weight=ft.FontWeight.BOLD),
             alignment=ft.alignment.center,
         ),
         ft.Container(
             content=ft.Image(
                 src="assets/logo.png",
-                width=150 if not page.width or page.width > 500 else 100,
-                height=150 if not page.width or page.width > 500 else 100,
+                width=150,
+                height=150,
                 opacity=0.3,
                 fit=ft.ImageFit.CONTAIN,
             ),

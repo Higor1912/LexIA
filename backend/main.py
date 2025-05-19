@@ -5,18 +5,15 @@ import uvicorn
 
 app = FastAPI()
 
-# Permitir acesso do frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ou especifique ['http://localhost']
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Carrega o pipeline de perguntas e respostas
 qa_pipeline = pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
 
-# Dicionário com diferentes contextos jurídicos
 contextos = {
     "estágio": (
         "De acordo com a Lei do Estágio (Lei nº 11.788/2008), os estagiários têm os seguintes direitos: "
@@ -60,7 +57,6 @@ contextos = {
     ),
 }
 
-# Função auxiliar para detectar o contexto
 def detectar_contexto(pergunta: str) -> str:
     pergunta_lower = pergunta.lower()
     if "estágio" in pergunta_lower or "estagiário" in pergunta_lower:
@@ -82,7 +78,6 @@ def detectar_contexto(pergunta: str) -> str:
     elif any(p in pergunta_lower for p in ["imposto", "tributo", "taxa", "irpf", "iptu", "icms", "tributário", "fiscal"]):
         return contextos["direito tributário"]
     else:
-        # Contexto padrão mais neutro
         return (
             "Não foi possível identificar o contexto jurídico exato da sua pergunta. "
             "Por favor, forneça mais detalhes ou utilize termos como 'estágio', 'contrato', 'crime', 'PJ', 'trabalho', 'consumidor', etc."
