@@ -20,6 +20,7 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
+            # Adiciona mensagem do usuário
             chat_history.controls.append(
                 ft.Row(
                     alignment=ft.MainAxisAlignment.END,
@@ -36,6 +37,7 @@ def main(page: ft.Page):
                 )
             )
 
+            # Indicador "Pensando..."
             thinking = ft.Row(
                 alignment=ft.MainAxisAlignment.START,
                 controls=[
@@ -52,6 +54,7 @@ def main(page: ft.Page):
             chat_history.controls.append(thinking)
             page.update()
 
+            # Envia requisição à API
             try:
                 response = requests.post(
                     API_URL,
@@ -69,6 +72,7 @@ def main(page: ft.Page):
             except Exception as ex:
                 assistant_response = f"⚠️ Erro inesperado: {str(ex)}"
 
+            # Remove "Pensando..." e adiciona resposta
             chat_history.controls.remove(thinking)
             chat_history.controls.append(
                 ft.Row(
@@ -92,6 +96,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
+    # Campo de entrada de mensagem
     message_input = ft.TextField(
         hint_text="Digite sua dúvida jurídica aqui...",
         border_radius=20,
@@ -101,8 +106,9 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
+    # Botão de envio (usando string no lugar de ícone)
     send_button = ft.IconButton(
-        icon="send",  # Compatível com versões antigas
+        icon="send",
         tooltip="Enviar",
         on_click=send_message,
         style=ft.ButtonStyle(shape=ft.BoxShape.CIRCLE),
@@ -113,14 +119,15 @@ def main(page: ft.Page):
         alignment=ft.MainAxisAlignment.CENTER
     )
 
+    # Função para preencher input com sugestão
     def set_message(text):
         message_input.value = text
         send_message(None)
 
+    # Sugestões de temas jurídicos
     def get_suggestion_cards():
-        return ft.Wrap(
+        return ft.Column(
             spacing=10,
-            run_spacing=10,
             controls=[
                 ft.ElevatedButton(
                     text="📚 Direito Civil",
@@ -143,6 +150,7 @@ def main(page: ft.Page):
             ]
         )
 
+    # Layout principal da página
     page.add(
         ft.Column(
             [
@@ -174,4 +182,5 @@ def main(page: ft.Page):
 
     message_input.focus()
 
+# Inicializa o app
 ft.app(target=main, view=ft.WEB_BROWSER)
