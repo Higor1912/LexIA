@@ -1,7 +1,7 @@
 import flet as ft
 import requests
 
-API_URL = "https://lexia-backend.onrender.com/pergunta"  # URL do backend
+API_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA - Assistente Jurídico"
@@ -18,11 +18,11 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Adiciona mensagem do usuário
+            # Mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(user_message, selectable=True, color="white"),
-                    bgcolor="#1976D2",  # Azul mais escuro
+                    content=ft.Text(user_message, selectable=True, color=ft.colors.WHITE),
+                    bgcolor=ft.colors.BLUE_700,
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_right
@@ -30,7 +30,7 @@ def main(page: ft.Page):
             )
             thinking_indicator = ft.Container(
                 content=ft.Text("Pensando...", selectable=True),
-                bgcolor="#ECEFF1",  # Cinza claro
+                bgcolor=ft.colors.BLUE_GREY_50,
                 padding=10,
                 border_radius=8,
                 alignment=ft.alignment.center_left
@@ -42,7 +42,7 @@ def main(page: ft.Page):
                 response = requests.post(
                     API_URL,
                     json={"pergunta": user_message},
-                    timeout=60  # timeout mais longo
+                    timeout=60
                 )
                 if response.status_code == 200:
                     assistant_response = response.json().get("resposta", "Não consegui entender.")
@@ -61,8 +61,8 @@ def main(page: ft.Page):
             chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(assistant_response, selectable=True, color="black"),
-                    bgcolor="#F1F8E9",  # Verde bem claro
+                    content=ft.Text(assistant_response, selectable=True, color=ft.colors.BLACK),
+                    bgcolor=ft.colors.LIGHT_GREEN_50,
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_left
@@ -72,7 +72,6 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
-    # Campo de texto
     message_input = ft.TextField(
         label="Digite sua dúvida jurídica",
         hint_text="Digite sua dúvida jurídica aqui...",
@@ -82,10 +81,9 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    # Sugestões
     def set_message(text):
         message_input.value = text
-        send_message(None)  # dispara como se tivesse apertado enter
+        send_message(None)
 
     def get_suggestion_cards():
         if page.width and page.width < 500:
@@ -97,9 +95,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Explique sobre direito civil"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, "#e0e0e0"),
+                        border=ft.border.all(1, ft.colors.GREY_300),
                         border_radius=8,
-                        bgcolor="#ffffff",
+                        bgcolor=ft.colors.WHITE,
                         padding=10,
                         margin=5,
                     ),
@@ -109,9 +107,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Explique sobre direito penal"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, "#e0e0e0"),
+                        border=ft.border.all(1, ft.colors.GREY_300),
                         border_radius=8,
-                        bgcolor="#ffffff",
+                        bgcolor=ft.colors.WHITE,
                         padding=10,
                         margin=5,
                     ),
@@ -121,9 +119,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Como fazer um contrato?"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, "#e0e0e0"),
+                        border=ft.border.all(1, ft.colors.GREY_300),
                         border_radius=8,
-                        bgcolor="#ffffff",
+                        bgcolor=ft.colors.WHITE,
                         padding=10,
                         margin=5,
                     ),
@@ -148,7 +146,6 @@ def main(page: ft.Page):
                 ]
             )
 
-    # Montagem da tela
     page.add(
         ft.Column(
             [
@@ -168,3 +165,4 @@ def main(page: ft.Page):
     message_input.focus()
 
 ft.app(target=main, view=ft.WEB_BROWSER)
+
