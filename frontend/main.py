@@ -7,14 +7,13 @@ def main(page: ft.Page):
     page.title = "LexIA - Assistente Jurídico"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = "#F5F5F5"
-    page.padding = 20
     page.scroll = "auto"
-    max_content_width = 700
+    page.padding = 20
 
     chat_history = ft.Column(
-        scroll="auto",
         expand=True,
         spacing=12,
+        scroll="auto"
     )
 
     def send_message(e):
@@ -37,7 +36,7 @@ def main(page: ft.Page):
                 )
             )
 
-            # Indicador "pensando"
+            # Indicador de "pensando"
             thinking = ft.Row(
                 alignment=ft.MainAxisAlignment.START,
                 controls=[
@@ -54,7 +53,6 @@ def main(page: ft.Page):
             chat_history.controls.append(thinking)
             page.update()
 
-            # Requisição para API
             try:
                 response = requests.post(
                     API_URL,
@@ -72,7 +70,6 @@ def main(page: ft.Page):
             except Exception as ex:
                 assistant_response = f"⚠️ Erro inesperado: {str(ex)}"
 
-            # Remove indicador e mostra resposta
             chat_history.controls.remove(thinking)
             chat_history.controls.append(
                 ft.Row(
@@ -96,7 +93,6 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
-    # Campo de entrada
     message_input = ft.TextField(
         hint_text="Digite sua dúvida jurídica aqui...",
         border_radius=20,
@@ -106,7 +102,6 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    # Botão de envio (sem usar ft.icons)
     send_button = ft.IconButton(
         icon="send",
         tooltip="Enviar",
@@ -123,7 +118,6 @@ def main(page: ft.Page):
         message_input.value = text
         send_message(None)
 
-    # Cartões de sugestões — compatível com versões antigas
     def get_suggestion_cards():
         return ft.Column(
             spacing=10,
@@ -158,33 +152,31 @@ def main(page: ft.Page):
             ]
         )
 
-    # Layout final
     page.add(
-        ft.Column(
-            [
-                ft.Container(
-                    content=ft.Text("🤖 LexIA - Assistente Jurídico", style="headlineMedium", text_align="center"),
-                    alignment=ft.alignment.center
-                ),
-                ft.Divider(),
-                ft.Container(
-                    content=chat_history,
-                    expand=True,
-                    height=500,
-                    bgcolor="white",
-                    border_radius=12,
-                    padding=15,
-                ),
-                ft.Container(height=10),
-                message_row,
-                ft.Container(height=20),
-                ft.Text("Sugestões rápidas:", size=14, weight="bold"),
-                get_suggestion_cards(),
-            ],
-            width=max_content_width,
-            alignment=ft.MainAxisAlignment.START,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        ft.Container(
+            alignment=ft.alignment.top_center,
             expand=True,
+            content=ft.Column(
+                expand=True,
+                width=700,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Text("🤖 LexIA - Assistente Jurídico", style="headlineMedium", text_align="center"),
+                    ft.Divider(),
+                    ft.Container(
+                        content=chat_history,
+                        expand=True,
+                        bgcolor="white",
+                        border_radius=12,
+                        padding=15,
+                    ),
+                    ft.Container(height=10),
+                    message_row,
+                    ft.Container(height=20),
+                    ft.Text("Sugestões rápidas:", size=14, weight="bold"),
+                    get_suggestion_cards(),
+                ]
+            )
         )
     )
 
