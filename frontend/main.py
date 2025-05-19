@@ -18,11 +18,11 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Mensagem do usuário
+            # Adiciona mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(user_message, selectable=True, color=ft.colors.WHITE),
-                    bgcolor="#1565C0",  # Azul mais escuro
+                    content=ft.Text(user_message, selectable=True, color="white"),
+                    bgcolor="#1976D2",  # Azul mais escuro
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_right
@@ -30,7 +30,7 @@ def main(page: ft.Page):
             )
             thinking_indicator = ft.Container(
                 content=ft.Text("Pensando...", selectable=True),
-                bgcolor="#EEEEEE",  # Cinza claro
+                bgcolor="#ECEFF1",  # Cinza claro
                 padding=10,
                 border_radius=8,
                 alignment=ft.alignment.center_left
@@ -42,7 +42,7 @@ def main(page: ft.Page):
                 response = requests.post(
                     API_URL,
                     json={"pergunta": user_message},
-                    timeout=60  # Timeout estendido
+                    timeout=60  # timeout mais longo
                 )
                 if response.status_code == 200:
                     assistant_response = response.json().get("resposta", "Não consegui entender.")
@@ -57,11 +57,12 @@ def main(page: ft.Page):
             except Exception as ex:
                 assistant_response = f"⚠️ Erro inesperado: {str(ex)}"
 
+            # Remove "Pensando..." e mostra resposta
             chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(assistant_response, selectable=True, color=ft.colors.BLACK),
-                    bgcolor="#EEEEEE",
+                    content=ft.Text(assistant_response, selectable=True, color="black"),
+                    bgcolor="#F1F8E9",  # Verde bem claro
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_left
@@ -71,7 +72,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
-    # Campo para digitar a pergunta
+    # Campo de texto
     message_input = ft.TextField(
         label="Digite sua dúvida jurídica",
         hint_text="Digite sua dúvida jurídica aqui...",
@@ -81,10 +82,10 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    # Sugestões rápidas para o usuário
+    # Sugestões
     def set_message(text):
         message_input.value = text
-        send_message(None)  # dispara a função diretamente
+        send_message(None)  # dispara como se tivesse apertado enter
 
     def get_suggestion_cards():
         if page.width and page.width < 500:
@@ -147,7 +148,7 @@ def main(page: ft.Page):
                 ]
             )
 
-    # Layout da página
+    # Montagem da tela
     page.add(
         ft.Column(
             [
@@ -167,4 +168,3 @@ def main(page: ft.Page):
     message_input.focus()
 
 ft.app(target=main, view=ft.WEB_BROWSER)
-
