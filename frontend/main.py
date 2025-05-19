@@ -1,24 +1,16 @@
 import flet as ft
-import os
-import subprocess
 import requests
 
-# Configuração da API
 API_URL = "http://localhost:3001/pergunta"
 
-subprocess.Popen(["node", "../backend/server.js"])
-
 def main(page: ft.Page):
-    # Configurações da página
     page.title = "LexIA - Assistente Jurídico"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
-    page.window_width = 800  # Largura fixa
-    page.window_height = 600  # Altura fixa
-    page.window_resizable = False  # Impede o redimensionamento
-    page.window_maximizable = False  # Impede a maximização
-    
-    # Área de chat
+
+    # Responsividade: ajusta largura máxima do conteúdo
+    max_content_width = 600
+
     chat_history = ft.Column(
         scroll='auto',
         expand=True,
@@ -28,7 +20,6 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Adiciona mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
                     content=ft.Text(user_message, selectable=True),
@@ -38,8 +29,6 @@ def main(page: ft.Page):
                     alignment=ft.alignment.center_right
                 )
             )
-            
-            # Adiciona indicador de "pensando"
             thinking_indicator = ft.Container(
                 content=ft.Text("Pensando...", selectable=True),
                 bgcolor="#F5F5F5",
@@ -49,13 +38,11 @@ def main(page: ft.Page):
             )
             chat_history.controls.append(thinking_indicator)
             page.update()
-            
-            # Faz a requisição para a API
             try:
                 response = requests.post(
                     API_URL, 
                     json={"pergunta": user_message},
-                    timeout=30  # Adiciona timeout para evitar espera infinita
+                    timeout=30
                 )
                 if response.status_code == 200:
                     assistant_response = response.json().get("resposta", "Não consegui entender.")
@@ -69,8 +56,6 @@ def main(page: ft.Page):
                 assistant_response = "Não foi possível conectar ao servidor."
             except Exception as ex:
                 assistant_response = f"Erro inesperado: {str(ex)}"
-
-            # Remove o indicador de "pensando" e adiciona a resposta
             chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
@@ -81,83 +66,126 @@ def main(page: ft.Page):
                     alignment=ft.alignment.center_left
                 )
             )
-            
             message_input.value = ""
             message_input.focus()
             page.update()
 
-    # Campo de entrada modificado
     message_input = ft.TextField(
         label="Digite sua dúvida jurídica",
         hint_text="Digite sua dúvida jurídica aqui...",
         border_radius=8,
         expand=True,
-        on_submit=send_message,  # Adiciona o handler para o evento Enter
-        shift_enter=True,  # Permite usar Shift+Enter para nova linha
+        on_submit=send_message,
+        shift_enter=True,
     )
 
     def set_message(text):
         message_input.value = text
         page.update()
 
-    # Cards de sugestão
-    suggestion_cards = ft.Row(
-        controls=[
-            ft.Container(
-                content=ft.TextButton(
-                    text="Direito Civil\nTire suas dúvidas sobre direitos e obrigações",
-                    on_click=lambda _: set_message("Explique sobre direito civil"),
-                    style=ft.ButtonStyle(
-                        color={"": "#1a1a1a"},
+    # Responsividade: cards em coluna em telas pequenas
+    def get_suggestion_cards():
+        if page.width and page.width < 500:
+            # Coluna para telas pequenas
+            return ft.Column(
+                controls=[
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Direito Civil\nTire suas dúvidas sobre direitos e obrigações",
+                            on_click=lambda _: set_message("Explique sobre direito civil"),
+                        ),
+                        width=page.width * 0.9,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
                     ),
-                ),
-                width=200,
-                height=100,
-                border=ft.border.all(1, "#e0e0e0"),
-                border_radius=8,
-                bgcolor="#ffffff",
-                padding=10,
-                margin=5,
-            ),
-            ft.Container(
-                content=ft.TextButton(
-                    text="Direito Penal\nEntenda crimes e penas no Brasil",
-                    on_click=lambda _: set_message("Explique sobre direito penal"),
-                    style=ft.ButtonStyle(
-                        color={"": "#1a1a1a"},
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Direito Penal\nEntenda crimes e penas no Brasil",
+                            on_click=lambda _: set_message("Explique sobre direito penal"),
+                        ),
+                        width=page.width * 0.9,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
                     ),
-                ),
-                width=200,
-                height=100,
-                border=ft.border.all(1, "#e0e0e0"),
-                border_radius=8,
-                bgcolor="#ffffff",
-                padding=10,
-                margin=5,
-            ),
-            ft.Container(
-                content=ft.TextButton(
-                    text="Contratos\nComo elaborar e entender contratos",
-                    on_click=lambda _: set_message("Como fazer um contrato?"),
-                    style=ft.ButtonStyle(
-                        color={"": "#1a1a1a"},
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Contratos\nComo elaborar e entender contratos",
+                            on_click=lambda _: set_message("Como fazer um contrato?"),
+                        ),
+                        width=page.width * 0.9,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
                     ),
-                ),
-                width=200,
-                height=100,
-                border=ft.border.all(1, "#e0e0e0"),
-                border_radius=8,
-                bgcolor="#ffffff",
-                padding=10,
-                margin=5,
-            ),
-        ],
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=10,
-        wrap=True,  # Permite que os cards quebrem em múltiplas linhas
-    )
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10,
+            )
+        else:
+            # Linha para telas médias/grandes
+            return ft.Row(
+                controls=[
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Direito Civil\nTire suas dúvidas sobre direitos e obrigações",
+                            on_click=lambda _: set_message("Explique sobre direito civil"),
+                        ),
+                        width=200,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
+                    ),
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Direito Penal\nEntenda crimes e penas no Brasil",
+                            on_click=lambda _: set_message("Explique sobre direito penal"),
+                        ),
+                        width=200,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
+                    ),
+                    ft.Container(
+                        content=ft.TextButton(
+                            text="Contratos\nComo elaborar e entender contratos",
+                            on_click=lambda _: set_message("Como fazer um contrato?"),
+                        ),
+                        width=200,
+                        border=ft.border.all(1, "#e0e0e0"),
+                        border_radius=8,
+                        bgcolor="#ffffff",
+                        padding=10,
+                        margin=5,
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10,
+                wrap=True,
+            )
 
-    # Layout da barra de entrada
+    suggestion_cards = get_suggestion_cards()
+
+    def on_resize(e):
+        nonlocal suggestion_cards
+        suggestion_cards = get_suggestion_cards()
+        # Atualiza o layout principal
+        main_column.controls[3] = suggestion_cards
+        page.update()
+
+    page.on_resize = on_resize
+
     input_row = ft.Row(
         controls=[
             message_input,
@@ -172,37 +200,39 @@ def main(page: ft.Page):
             )
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        spacing=40,
+        spacing=20,
     )
 
-    # Layout principal
+    main_column = ft.Column([
+        ft.Container(
+            content=ft.Text(
+                "LexIA",
+                size=24 if not page.width or page.width > 500 else 18,
+                weight=ft.FontWeight.BOLD
+            ),
+            alignment=ft.alignment.center,
+        ),
+        ft.Container(
+            content=ft.Image(
+                src="assets/logo.png",
+                width=150 if not page.width or page.width > 500 else 100,
+                height=150 if not page.width or page.width > 500 else 100,
+                opacity=0.3,
+                fit=ft.ImageFit.CONTAIN,
+            ),
+            alignment=ft.alignment.center,
+        ),
+        chat_history,
+        suggestion_cards,
+        input_row
+    ], expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER, width=max_content_width)
+
     page.add(
         ft.Container(
-            content=ft.Column([
-                ft.Container(  # Container para centralizar o título
-                    content=ft.Text(
-                        "LexIA",
-                        size=24,
-                        weight=ft.FontWeight.BOLD
-                    ),
-                    alignment=ft.alignment.center,
-                ),
-                ft.Container(
-                    content=ft.Image(
-                        src="assets/logo.png",
-                        width=150,
-                        height=150,
-                        opacity=0.3,
-                        fit=ft.ImageFit.CONTAIN,
-                    ),
-                    alignment=ft.alignment.center,
-                ),
-                chat_history,
-                suggestion_cards,
-                input_row  # Usa a nova Row configurada
-            ]),
-            expand=True
+            content=main_column,
+            expand=True,
+            alignment=ft.alignment.center,
         )
     )
 
-ft.app(target=main)
+ft.app(target=main, view=ft.WEB_BROWSER)
