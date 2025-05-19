@@ -1,14 +1,12 @@
 import flet as ft
 import requests
-import os
 
-API_URL = "http://localhost:3001/pergunta"
+API_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA - Assistente Jurídico"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
-
     max_content_width = 600
 
     chat_history = ft.Column(
@@ -20,6 +18,7 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
+            # Adiciona a mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
                     content=ft.Text(user_message, selectable=True),
@@ -72,6 +71,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
+    # 🧠 Campo de entrada do usuário
     message_input = ft.TextField(
         label="Digite sua dúvida jurídica",
         hint_text="Digite sua dúvida jurídica aqui...",
@@ -81,6 +81,7 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
+    # Sugestões rápidas
     def set_message(text):
         message_input.value = text
         page.update()
@@ -228,6 +229,6 @@ def main(page: ft.Page):
             alignment=ft.alignment.center,
         )
     )
-    
-port = int(os.environ.get("PORT", 8000))
-ft.app(target=main, view=None, port=10000)
+
+# Executa como app web
+ft.app(target=main, view=ft.WEB_BROWSER, port=10000)
