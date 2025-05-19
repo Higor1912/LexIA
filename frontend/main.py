@@ -30,7 +30,7 @@ def main(page: ft.Page):
                 avatar("L", "#1976D2"),
                 ft.Container(
                     content=ft.Text("Olá! Sou a LexIA, sua assistente jurídica. Como posso te ajudar hoje?"),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    bgcolor="#EEEEEE",
                     padding=12,
                     border_radius=10,
                     width=page.width * 0.6,
@@ -68,7 +68,7 @@ def main(page: ft.Page):
                 avatar("L", "#1976D2"),
                 ft.Container(
                     content=ft.Text("Pensando..."),
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+                    bgcolor="#EEEEEE",
                     padding=12,
                     border_radius=10,
                     width=page.width * 0.6,
@@ -101,7 +101,7 @@ def main(page: ft.Page):
                     avatar("L", "#1976D2"),
                     ft.Container(
                         content=ft.Text(assistant_response, selectable=True),
-                        bgcolor=ft.colors.SURFACE_VARIANT,
+                       bgcolor="#EEEEEE",
                         padding=12,
                         border_radius=10,
                         width=page.width * 0.6,
