@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request 
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import pipeline
 from functools import lru_cache
@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Se preferir, coloque o domínio exato do frontend
     allow_methods=["*"],
     allow_headers=["*"],
 )

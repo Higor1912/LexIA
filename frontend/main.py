@@ -1,7 +1,7 @@
 import flet as ft
 import requests
 
-API_URL = "https://lexia-backend.onrender.com/pergunta"
+API_URL = "https://lexia-backend.onrender.com/pergunta"  # Ajuste para o URL real do backend no Render
 
 def main(page: ft.Page):
     page.title = "LexIA - Assistente Jurídico"
@@ -18,7 +18,7 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Adiciona a mensagem do usuário
+            # Mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
                     content=ft.Text(user_message, selectable=True),
@@ -71,7 +71,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
-    # 🧠 Campo de entrada do usuário
+    # Campo para digitar a pergunta
     message_input = ft.TextField(
         label="Digite sua dúvida jurídica",
         hint_text="Digite sua dúvida jurídica aqui...",
@@ -81,7 +81,7 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    # Sugestões rápidas
+    # Sugestões rápidas para o usuário
     def set_message(text):
         message_input.value = text
         page.update()
@@ -126,109 +126,44 @@ def main(page: ft.Page):
                         padding=10,
                         margin=5,
                     ),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
-                spacing=10,
+                ]
             )
         else:
             return ft.Row(
-                controls=[
-                    ft.Container(
-                        content=ft.TextButton(
-                            text="Direito Civil\nTire suas dúvidas sobre direitos e obrigações",
-                            on_click=lambda _: set_message("Explique sobre direito civil"),
-                        ),
-                        width=200,
-                        border=ft.border.all(1, "#e0e0e0"),
-                        border_radius=8,
-                        bgcolor="#ffffff",
-                        padding=10,
-                        margin=5,
-                    ),
-                    ft.Container(
-                        content=ft.TextButton(
-                            text="Direito Penal\nEntenda crimes e penas no Brasil",
-                            on_click=lambda _: set_message("Explique sobre direito penal"),
-                        ),
-                        width=200,
-                        border=ft.border.all(1, "#e0e0e0"),
-                        border_radius=8,
-                        bgcolor="#ffffff",
-                        padding=10,
-                        margin=5,
-                    ),
-                    ft.Container(
-                        content=ft.TextButton(
-                            text="Contratos\nComo elaborar e entender contratos",
-                            on_click=lambda _: set_message("Como fazer um contrato?"),
-                        ),
-                        width=200,
-                        border=ft.border.all(1, "#e0e0e0"),
-                        border_radius=8,
-                        bgcolor="#ffffff",
-                        padding=10,
-                        margin=5,
-                    ),
-                ],
-                alignment=ft.MainAxisAlignment.CENTER,
                 spacing=10,
-                wrap=True,
+                controls=[
+                    ft.ElevatedButton(
+                        "Direito Civil",
+                        on_click=lambda _: set_message("Explique sobre direito civil"),
+                    ),
+                    ft.ElevatedButton(
+                        "Direito Penal",
+                        on_click=lambda _: set_message("Explique sobre direito penal"),
+                    ),
+                    ft.ElevatedButton(
+                        "Contratos",
+                        on_click=lambda _: set_message("Como fazer um contrato?"),
+                    ),
+                ]
             )
 
-    suggestion_cards = get_suggestion_cards()
-
-    def on_resize(e):
-        nonlocal suggestion_cards
-        suggestion_cards = get_suggestion_cards()
-        main_column.controls[3] = suggestion_cards
-        page.update()
-
-    page.on_resize = on_resize
-
-    input_row = ft.Row(
-        controls=[
-            message_input,
-            ft.Container(
-                content=ft.IconButton(
-                    icon="send",
-                    on_click=send_message,
-                    bgcolor="#2196F3",
-                    icon_color="white"
-                ),
-                margin=ft.margin.only(left=10),
-            )
-        ],
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        spacing=20,
-    )
-
-    main_column = ft.Column([
-        ft.Container(
-            content=ft.Text("LexIA", size=24, weight=ft.FontWeight.BOLD),
-            alignment=ft.alignment.center,
-        ),
-        ft.Container(
-            content=ft.Image(
-                src="assets/logo.png",
-                width=150,
-                height=150,
-                opacity=0.3,
-                fit=ft.ImageFit.CONTAIN,
-            ),
-            alignment=ft.alignment.center,
-        ),
-        chat_history,
-        suggestion_cards,
-        input_row
-    ], expand=True, horizontal_alignment=ft.CrossAxisAlignment.CENTER, width=max_content_width)
-
+    # Layout da página
     page.add(
-        ft.Container(
-            content=main_column,
+        ft.Column(
+            [
+                ft.Text("LexIA - Assistente Jurídico", style="headlineMedium"),
+                chat_history,
+                message_input,
+                ft.Container(height=10),
+                get_suggestion_cards(),
+            ],
+            width=max_content_width,
+            alignment=ft.MainAxisAlignment.START,
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
             expand=True,
-            alignment=ft.alignment.center,
         )
     )
 
-# Executa como app web
-ft.app(target=main, view=ft.WEB_BROWSER, port=10000)
+    message_input.focus()
+
+ft.app(target=main, view=ft.WEB_BROWSER)
