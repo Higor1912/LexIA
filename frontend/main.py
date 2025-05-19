@@ -21,8 +21,8 @@ def main(page: ft.Page):
             # Mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(user_message, selectable=True, color=ft.colors.WHITE),
-                    bgcolor=ft.colors.BLUE_700,
+                    content=ft.Text(user_message, selectable=True, color="white"),
+                    bgcolor="#1976D2",  # Azul escuro (equivalente ao BLUE_700)
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_right
@@ -30,7 +30,7 @@ def main(page: ft.Page):
             )
             thinking_indicator = ft.Container(
                 content=ft.Text("Pensando...", selectable=True),
-                bgcolor=ft.colors.BLUE_GREY_50,
+                bgcolor="#ECEFF1",  # Azul acinzentado claro (BLUE_GREY_50)
                 padding=10,
                 border_radius=8,
                 alignment=ft.alignment.center_left
@@ -61,8 +61,8 @@ def main(page: ft.Page):
             chat_history.controls.remove(thinking_indicator)
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(assistant_response, selectable=True, color=ft.colors.BLACK),
-                    bgcolor=ft.colors.LIGHT_GREEN_50,
+                    content=ft.Text(assistant_response, selectable=True, color="black"),
+                    bgcolor="#F1F8E9",  # Verde claro (LIGHT_GREEN_50)
                     padding=10,
                     border_radius=8,
                     alignment=ft.alignment.center_left
@@ -95,9 +95,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Explique sobre direito civil"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, ft.colors.GREY_300),
+                        border=ft.border.all(1, "#E0E0E0"),  # cinza claro
                         border_radius=8,
-                        bgcolor=ft.colors.WHITE,
+                        bgcolor="white",
                         padding=10,
                         margin=5,
                     ),
@@ -107,9 +107,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Explique sobre direito penal"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, ft.colors.GREY_300),
+                        border=ft.border.all(1, "#E0E0E0"),
                         border_radius=8,
-                        bgcolor=ft.colors.WHITE,
+                        bgcolor="white",
                         padding=10,
                         margin=5,
                     ),
@@ -119,9 +119,9 @@ def main(page: ft.Page):
                             on_click=lambda _: set_message("Como fazer um contrato?"),
                         ),
                         width=page.width * 0.9,
-                        border=ft.border.all(1, ft.colors.GREY_300),
+                        border=ft.border.all(1, "#E0E0E0"),
                         border_radius=8,
-                        bgcolor=ft.colors.WHITE,
+                        bgcolor="white",
                         padding=10,
                         margin=5,
                     ),
