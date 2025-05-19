@@ -1,4 +1,5 @@
 import flet as ft
+from flet import colors
 import requests
 
 API_URL = "https://lexia-backend.onrender.com/pergunta"
@@ -21,7 +22,7 @@ def main(page: ft.Page):
             # Mensagem do usuário
             chat_history.controls.append(
                 ft.Container(
-                    content=ft.Text(user_message, selectable=True, color=ft.colors.WHITE),
+                    content=ft.Text(user_message, selectable=True, color=colors.WHITE),
                     bgcolor=ft.colors.BLUE_700,
                     padding=10,
                     border_radius=8,
