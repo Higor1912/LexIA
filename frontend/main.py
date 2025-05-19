@@ -20,7 +20,7 @@ def main(page: ft.Page):
     def send_message(e):
         user_message = message_input.value.strip()
         if user_message:
-            # Exibir mensagem do usuário
+            # Mensagem do usuário
             chat_history.controls.append(
                 ft.Row(
                     alignment=ft.MainAxisAlignment.END,
@@ -37,7 +37,7 @@ def main(page: ft.Page):
                 )
             )
 
-            # Indicador de "pensando..."
+            # Pensando...
             thinking = ft.Row(
                 alignment=ft.MainAxisAlignment.START,
                 controls=[
@@ -71,7 +71,7 @@ def main(page: ft.Page):
             except Exception as ex:
                 assistant_response = f"⚠️ Erro inesperado: {str(ex)}"
 
-            # Remove "pensando..." e exibe resposta
+            # Remove "Pensando..." e mostra resposta
             chat_history.controls.remove(thinking)
             chat_history.controls.append(
                 ft.Row(
@@ -95,6 +95,7 @@ def main(page: ft.Page):
             message_input.focus()
             page.update()
 
+    # Campo de texto
     message_input = ft.TextField(
         hint_text="Digite sua dúvida jurídica aqui...",
         border_radius=20,
@@ -104,11 +105,15 @@ def main(page: ft.Page):
         shift_enter=True,
     )
 
-    send_button = ft.IconButton(
-        icon=ft.icons.SEND,
-        tooltip="Enviar",
+    # Botão de envio com texto em vez de ícone
+    send_button = ft.ElevatedButton(
+        text="Enviar",
         on_click=send_message,
-        style=ft.ButtonStyle(shape=ft.BoxShape.CIRCLE),
+        height=45,
+        style=ft.ButtonStyle(
+            shape=ft.BoxShape.CIRCLE,
+            padding=10
+        )
     )
 
     message_row = ft.Row(
@@ -126,19 +131,19 @@ def main(page: ft.Page):
             run_spacing=10,
             controls=[
                 ft.ElevatedButton(
-                    "📚 Direito Civil",
+                    text="📚 Direito Civil",
                     on_click=lambda _: set_message("Explique sobre direito civil"),
                     bgcolor="#E3F2FD",
                     color="black"
                 ),
                 ft.ElevatedButton(
-                    "⚖️ Direito Penal",
+                    text="⚖️ Direito Penal",
                     on_click=lambda _: set_message("Explique sobre direito penal"),
                     bgcolor="#E8F5E9",
                     color="black"
                 ),
                 ft.ElevatedButton(
-                    "📝 Contratos",
+                    text="📝 Contratos",
                     on_click=lambda _: set_message("Como fazer um contrato?"),
                     bgcolor="#FFFDE7",
                     color="black"
