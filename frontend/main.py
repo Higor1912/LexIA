@@ -106,14 +106,12 @@ def main(page: ft.Page):
     )
 
     # Botão de envio com texto em vez de ícone
-    send_button = ft.ElevatedButton(
-        text="Enviar",
-        on_click=send_message,
-        height=45,
-        style=ft.ButtonStyle(
-            shape=ft.BoxShape.CIRCLE,
-            padding=10
-        )
+   send_button = ft.IconButton(
+    icon="send",  # <- CORREÇÃO AQUI
+    tooltip="Enviar",
+    on_click=send_message,
+    style=ft.ButtonStyle(shape=ft.BoxShape.CIRCLE),
+)
     )
 
     message_row = ft.Row(
