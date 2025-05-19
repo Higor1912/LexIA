@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import pipeline
+from functools import lru_cache
 import uvicorn
 
 app = FastAPI()
@@ -12,7 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-qa_pipeline = pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
+@lru_cache()
+def get_pipeline():
+    return pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
 
 contextos = {
     "estágio": (
@@ -85,15 +88,19 @@ def detectar_contexto(pergunta: str) -> str:
 
 @app.post("/pergunta")
 async def responder(req: Request):
-    dados = await req.json()
-    pergunta = dados.get("pergunta", "")
-    contexto = detectar_contexto(pergunta)
-    resposta = qa_pipeline(question=pergunta, context=contexto)
-    resposta_completa = (
-        f"Resposta: {resposta['answer']}\n\n"
-        f"Explicação adicional: {contexto}"
-    )
-    return {"resposta": resposta_completa}
+    try:
+        dados = await req.json()
+        pergunta = dados.get("pergunta", "")
+        contexto = detectar_contexto(pergunta)
+        qa_pipeline = get_pipeline()
+        resposta = qa_pipeline(question=pergunta, context=contexto)
+        resposta_completa = (
+            f"Resposta: {resposta['answer']}\n\n"
+            f"Explicação adicional: {contexto}"
+        )
+        return {"resposta": resposta_completa}
+    except Exception as e:
+        return {"erro": f"Erro no servidor: {str(e)}"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3001)
