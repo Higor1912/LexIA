@@ -1,111 +1,112 @@
 import flet as ft
-import requests
+import asyncio
+import httpx  # vamos usar httpx para requisições async
 
-API_URL = "https://lexia-backend.onrender.com/pergunta"
+BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
-    page.title = "LexIA - Assistente Jurídico"
-    page.theme_mode = ft.ThemeMode.LIGHT
-    page.bgcolor = "#F5F5F5"
-    page.scroll = "auto"
+    page.title = "LexIA"
+    page.theme_mode = ft.ThemeMode.DARK
+    page.bgcolor = ft.Colors.BLACK
     page.padding = 20
 
-    chat_history = ft.ListView(
+    resposta_ia = ft.Text(
+        value="Olá! Sou a LexIA. Em que posso ajudar?",
+        color=ft.Colors.WHITE,
+        size=16,
+        selectable=True,
+        text_align=ft.TextAlign.CENTER,
         expand=True,
-        spacing=10,
-        padding=10,
-        auto_scroll=True,
     )
 
-    def send_message(e):
-        user_message = message_input.value.strip()
-        if user_message:
-            # Adiciona mensagem do usuário
-            chat_history.controls.append(
-                ft.Container(
-                    content=ft.Text(user_message, color="white", selectable=True),
-                    bgcolor="#1976D2",
-                    padding=12,
-                    border_radius=10,
-                    alignment=ft.alignment.center_right
-                )
-            )
-
-            # Mostra "Pensando..."
-            thinking = ft.Container(
-                content=ft.Text("LexIA está pensando..."),
-                bgcolor="#EEEEEE",
-                padding=12,
-                border_radius=10,
-                alignment=ft.alignment.center_left
-            )
-            chat_history.controls.append(thinking)
-            page.update()
-
-            # Chamada para API
-            try:
-                response = requests.post(API_URL, json={"pergunta": user_message}, timeout=60)
-                if response.status_code == 200:
-                    reply = response.json().get("resposta", "Desculpe, não entendi.")
-                else:
-                    reply = f"Erro {response.status_code}: {response.text}"
-            except requests.Timeout:
-                reply = "⏱️ Tempo de resposta excedido."
-            except requests.ConnectionError:
-                reply = "❌ Erro de conexão."
-            except Exception as ex:
-                reply = f"⚠️ Erro: {str(ex)}"
-
-            # Remove "Pensando..." e mostra resposta
-            chat_history.controls.remove(thinking)
-            chat_history.controls.append(
-                ft.Container(
-                    content=ft.Text(reply, color="black", selectable=True),
-                    bgcolor="#C8E6C9",
-                    padding=12,
-                    border_radius=10,
-                    alignment=ft.alignment.center_left
-                )
-            )
-            message_input.value = ""
-            page.update()
-
-    message_input = ft.TextField(
-        hint_text="Digite sua dúvida jurídica...",
-        expand=True,
-        on_submit=send_message
+    titulo = ft.Text(
+        "LexIA",
+        color=ft.Colors.CYAN_200,
+        size=36,
+        weight=ft.FontWeight.W_700,
+        text_align=ft.TextAlign.CENTER,
     )
 
-    send_button = ft.IconButton(
-        icon="send",
-        tooltip="Enviar",
-        on_click=send_message
-    )
+    sugestoes = [
+        "Como abrir um processo?",
+        "Direitos trabalhistas"
+    ]
 
-    def set_message(text):
-        message_input.value = text
-        send_message(None)
-
-    def get_suggestions():
-        return ft.Column(
-            controls=[
-                ft.ElevatedButton("📚 Direito Civil", on_click=lambda _: set_message("Explique sobre direito civil")),
-                ft.ElevatedButton("⚖️ Direito Penal", on_click=lambda _: set_message("Explique sobre direito penal")),
-                ft.ElevatedButton("📝 Contratos", on_click=lambda _: set_message("Como fazer um contrato?")),
-            ]
+    sugestao_cards = [
+        ft.Container(
+            content=ft.Text(sugestao, color=ft.Colors.WHITE, size=18, weight=ft.FontWeight.W_600),
+            bgcolor=ft.Colors.BLUE_GREY_700,
+            padding=20,
+            border_radius=15,
+            width=280,
+            height=100,
+            alignment=ft.alignment.center,
         )
+        for sugestao in sugestoes
+    ]
+
+    cards_row = ft.Row(
+        controls=sugestao_cards,
+        scroll=ft.ScrollMode.AUTO,
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=20,
+    )
+
+    campo_texto = ft.TextField(
+        hint_text="Digite sua pergunta...",
+        filled=True,
+        expand=True,
+        border_radius=15,
+        bgcolor=ft.Colors.BLUE_GREY_900,
+        hint_style=ft.TextStyle(color=ft.Colors.GREY_400),
+        text_style=ft.TextStyle(color=ft.Colors.WHITE),
+    )
+
+    async def enviar_pergunta(_):
+        pergunta = campo_texto.value.strip()
+        if not pergunta:
+            return
+        resposta_ia.value = "Pensando..."
+        page.update()
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(BACKEND_URL, json={"pergunta": pergunta}, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+                resposta_ia.value = data.get("resposta") or data.get("erro") or "Sem resposta."
+            except Exception as e:
+                resposta_ia.value = f"Erro na comunicação: {e}"
+        campo_texto.value = ""
+        page.update()
+
+    enviar_btn = ft.IconButton(
+        icon=ft.Icons.SEND,
+        icon_color=ft.Colors.CYAN_200,
+        on_click=lambda e: asyncio.create_task(enviar_pergunta(e)),
+    )
+
+    input_area = ft.Row(
+        controls=[campo_texto, enviar_btn],
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+        spacing=10,
+    )
 
     page.add(
-        ft.Column([
-            ft.Text("🤖 LexIA - Assistente Jurídico", style="headlineSmall"),
-            ft.Container(chat_history, height=400, bgcolor="white", border_radius=10),
-            ft.Row([message_input, send_button]),
-            ft.Divider(),
-            ft.Text("Sugestões rápidas:", weight="bold"),
-            get_suggestions(),
-        ], expand=True)
+        ft.Column(
+            controls=[
+                titulo,
+                resposta_ia,
+                cards_row,
+                ft.Container(
+                    content=input_area,
+                    alignment=ft.alignment.bottom_center,
+                    padding=10,
+                )
+            ],
+            expand=True,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
     )
 
-    message_input.focus()
-
-ft.app(target=main, view=ft.WEB_BROWSER)
+ft.app(target=main, view=ft.AppView.WEB_BROWSER)
