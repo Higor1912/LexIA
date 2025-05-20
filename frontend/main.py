@@ -63,4 +63,4 @@ def main(page: ft.Page):
 
 # Execução compatível com Render
 if __name__ == "__main__":
-    ft.app(target=main, port=int(os.getenv("PORT", 8000)))
+    ft.app(target=main, port=int(os.getenv("PORT", 8000)), host="0.0.0.0")
