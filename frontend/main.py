@@ -1,5 +1,6 @@
 import flet as ft
-import httpx
+import requests
+import asyncio
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
@@ -61,36 +62,30 @@ def main(page: ft.Page):
         text_style=ft.TextStyle(color=ft.Colors.WHITE),
     )
 
-    async def enviar_pergunta(_):
+    async def enviar_pergunta(event=None):
         pergunta = campo_texto.value.strip()
         if not pergunta:
             return
 
         resposta_ia.value = "Pensando..."
-        await page.update_async()
+        page.update()
 
         try:
-            async with httpx.AsyncClient() as client:
-                resposta = await client.post(BACKEND_URL, json={"pergunta": pergunta})
-                dados = resposta.json()
-
-            if "resposta" in dados:
-                resposta_ia.value = dados["resposta"]
-            else:
-                resposta_ia.value = f"Erro: {dados.get('erro', 'Erro desconhecido')}"
+            response = requests.post(BACKEND_URL, json={"pergunta": pergunta})
+            resposta = response.json().get("resposta", "Erro ao obter resposta.")
+            resposta_ia.value = resposta
         except Exception as e:
-            resposta_ia.value = f"Erro de conexão: {str(e)}"
-
-        campo_texto.value = ""
-        await page.update_async()
+            resposta_ia.value = f"Erro: {str(e)}"
+        finally:
+            page.update()
 
     enviar_btn = ft.IconButton(
         icon=ft.Icons.SEND,
         icon_color=ft.Colors.CYAN_200,
-        on_click=enviar_pergunta
+        on_click=lambda e: asyncio.run(enviar_pergunta(e))
     )
 
-    campo_texto.on_submit = enviar_pergunta
+    campo_texto.on_submit = lambda e: asyncio.run(enviar_pergunta(e))
 
     input_area = ft.Row(
         controls=[campo_texto, enviar_btn],
