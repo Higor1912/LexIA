@@ -1,113 +1,66 @@
 import flet as ft
 import requests
-import asyncio
+import os
 
-BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
+API_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
-    page.title = "LexIA"
-    page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = ft.Colors.BLACK
-    page.padding = 20
+    page.title = "LexIA - Assistente Jurídico"
+    page.scroll = "auto"
+    page.theme_mode = ft.ThemeMode.LIGHT
 
-    resposta_ia = ft.Text(
-        value="Olá! Sou a LexIA. Em que posso ajudar?",
-        color=ft.Colors.WHITE,
-        size=16,
-        selectable=True,
-        text_align=ft.TextAlign.CENTER,
+    # Componentes da interface
+    titulo = ft.Text("LexIA", size=32, weight="bold", color="blue")
+    subtitulo = ft.Text("Seu assistente jurídico com IA", size=18, italic=True)
+
+    chat = ft.Column(expand=True, scroll="auto")
+    pergunta_input = ft.TextField(
+        label="Digite sua pergunta",
+        multiline=False,
+        autofocus=True,
         expand=True,
+        on_submit=lambda e: enviar_pergunta(e)
     )
 
-    titulo = ft.Text(
-        "LexIA",
-        color=ft.Colors.CYAN_200,
-        size=36,
-        weight=ft.FontWeight.W_700,
-        text_align=ft.TextAlign.CENTER,
+    enviar_btn = ft.ElevatedButton("Enviar", on_click=lambda e: enviar_pergunta(e))
+
+    entrada_pergunta = ft.Row(
+        controls=[pergunta_input, enviar_btn],
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
     )
 
-    sugestoes = [
-        "Como abrir um processo?",
-        "Direitos trabalhistas"
-    ]
-
-    sugestao_cards = [
-        ft.Container(
-            content=ft.Text(sugestao, color=ft.Colors.WHITE, size=18, weight=ft.FontWeight.W_600),
-            bgcolor=ft.Colors.BLUE_GREY_700,
-            padding=20,
-            border_radius=15,
-            width=280,
-            height=100,
-            alignment=ft.alignment.center
-        )
-        for sugestao in sugestoes
-    ]
-
-    cards_row = ft.Row(
-        controls=sugestao_cards,
-        scroll=ft.ScrollMode.AUTO,
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=20,
+    # Adiciona tudo na página
+    page.add(
+        ft.Column([
+            titulo,
+            subtitulo,
+            ft.Divider(),
+            chat,
+            entrada_pergunta
+        ], expand=True)
     )
 
-    campo_texto = ft.TextField(
-        hint_text="Digite sua pergunta...",
-        filled=True,
-        expand=True,
-        border_radius=15,
-        bgcolor=ft.Colors.BLUE_GREY_900,
-        hint_style=ft.TextStyle(color=ft.Colors.GREY_400),
-        text_style=ft.TextStyle(color=ft.Colors.WHITE),
-    )
-
-    async def enviar_pergunta(event=None):
-        pergunta = campo_texto.value.strip()
+    # Função que envia a pergunta para o backend e mostra a resposta
+    def enviar_pergunta(e):
+        pergunta = pergunta_input.value.strip()
         if not pergunta:
             return
-
-        resposta_ia.value = "Pensando..."
+        chat.controls.append(ft.Text(f"👤 Você: {pergunta}", size=16, weight="w500"))
+        pergunta_input.value = ""
         page.update()
 
         try:
-            response = requests.post(BACKEND_URL, json={"pergunta": pergunta})
-            resposta = response.json().get("resposta", "Erro ao obter resposta.")
-            resposta_ia.value = resposta
-        except Exception as e:
-            resposta_ia.value = f"Erro: {str(e)}"
-        finally:
-            page.update()
+            response = requests.post(API_URL, json={"pergunta": pergunta})
+            if response.status_code == 200:
+                resposta = response.json().get("resposta", "⚠️ Resposta não encontrada.")
+            else:
+                resposta = "❌ Erro na resposta da API."
+        except Exception as ex:
+            resposta = f"🚨 Erro de conexão: {ex}"
 
-    enviar_btn = ft.IconButton(
-        icon=ft.Icons.SEND,
-        icon_color=ft.Colors.CYAN_200,
-        on_click=lambda e: asyncio.run(enviar_pergunta(e))
-    )
+        chat.controls.append(ft.Text(f"🤖 LexIA: {resposta}", size=16))
+        page.update()
 
-    campo_texto.on_submit = lambda e: asyncio.run(enviar_pergunta(e))
-
-    input_area = ft.Row(
-        controls=[campo_texto, enviar_btn],
-        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=10,
-    )
-
-    page.add(
-        ft.Column(
-            controls=[
-                titulo,
-                resposta_ia,
-                cards_row,
-                ft.Container(
-                    content=input_area,
-                    alignment=ft.alignment.bottom_center,
-                    padding=10,
-                )
-            ],
-            expand=True,
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        )
-    )
-
-ft.app(target=main, view=ft.AppView.WEB_BROWSER)
+# Execução compatível com Render
+if __name__ == "__main__":
+    ft.app(target=main, port=int(os.getenv("PORT", 8000)))
