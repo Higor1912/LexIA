@@ -1,6 +1,5 @@
 import flet as ft
-import asyncio
-import httpx  # vamos usar httpx para requisições async
+import httpx
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
@@ -40,7 +39,7 @@ def main(page: ft.Page):
             border_radius=15,
             width=280,
             height=100,
-            alignment=ft.alignment.center,
+            alignment=ft.alignment.center
         )
         for sugestao in sugestoes
     ]
@@ -66,25 +65,32 @@ def main(page: ft.Page):
         pergunta = campo_texto.value.strip()
         if not pergunta:
             return
-        resposta_ia.value = "Pensando..."
-        page.update()
 
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(BACKEND_URL, json={"pergunta": pergunta}, timeout=30)
-                response.raise_for_status()
-                data = response.json()
-                resposta_ia.value = data.get("resposta") or data.get("erro") or "Sem resposta."
-            except Exception as e:
-                resposta_ia.value = f"Erro na comunicação: {e}"
+        resposta_ia.value = "Pensando..."
+        await page.update_async()
+
+        try:
+            async with httpx.AsyncClient() as client:
+                resposta = await client.post(BACKEND_URL, json={"pergunta": pergunta})
+                dados = resposta.json()
+
+            if "resposta" in dados:
+                resposta_ia.value = dados["resposta"]
+            else:
+                resposta_ia.value = f"Erro: {dados.get('erro', 'Erro desconhecido')}"
+        except Exception as e:
+            resposta_ia.value = f"Erro de conexão: {str(e)}"
+
         campo_texto.value = ""
-        page.update()
+        await page.update_async()
 
     enviar_btn = ft.IconButton(
         icon=ft.Icons.SEND,
         icon_color=ft.Colors.CYAN_200,
-        on_click=lambda e: asyncio.create_task(enviar_pergunta(e)),
+        on_click=enviar_pergunta
     )
+
+    campo_texto.on_submit = enviar_pergunta
 
     input_area = ft.Row(
         controls=[campo_texto, enviar_btn],
