@@ -4,24 +4,28 @@ from pydantic import BaseModel
 import google.generativeai as genai
 import os
 
-# Configure sua chave de API Gemini
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))  # ou substitua pelo valor diretamente
+# Configure a chave de API do Gemini
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-model = genai.GenerativeModel("gemini-pro")
+# Criação do modelo Gemini
+model = genai.GeminiPro()  # Nome correto da classe
 
 app = FastAPI()
 
+# CORS para permitir acesso do frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Altere depois para seu domínio exato
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Modelo da pergunta recebida
 class Pergunta(BaseModel):
     pergunta: str
 
+# Rota da API que responde com base na Gemini
 @app.post("/pergunta")
 async def responder(pergunta: Pergunta):
     try:
@@ -29,4 +33,4 @@ async def responder(pergunta: Pergunta):
         resposta = response.text.strip()
         return {"resposta": resposta}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar resposta: {e}")
