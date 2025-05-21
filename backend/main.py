@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -37,5 +37,9 @@ class Pergunta(BaseModel):
 # Endpoint para responder pergunta
 @app.post("/pergunta")
 async def responder(pergunta: Pergunta):
-    resposta = model.generate_content(pergunta.mensagem)
-    return {"resposta": resposta.text}
+    try:
+        resposta = model.generate_content(pergunta.mensagem)
+        return {"resposta": resposta.text}
+    except Exception as e:
+        print(f"[ERRO GEMINI] {e}")
+        raise HTTPException(status_code=500, detail="Erro ao processar a pergunta")
