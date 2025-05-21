@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: lexia-frontend
+    env: python
+    plan: free
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: "8000"
