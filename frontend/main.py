@@ -3,6 +3,7 @@ import asyncio
 import httpx
 import os
 
+# URL do backend (certifique-se de que este endereço esteja correto)
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
@@ -82,7 +83,7 @@ def main(page: ft.Page):
         page.update()
 
     enviar_btn = ft.IconButton(
-        icon=ft.Icons.SEND,
+        icon=ft.icons.SEND,
         icon_color=ft.colors.CYAN_200,
         on_click=lambda e: asyncio.create_task(enviar_pergunta(e)),
     )
@@ -110,10 +111,6 @@ def main(page: ft.Page):
         )
     )
 
+# Executa o app web no Flet com a porta que o Render define via variável de ambiente
 if __name__ == "__main__":
-    ft.app(
-        target=main,
-        view=ft.AppView.WEB_BROWSER,
-        port=int(os.getenv("PORT", 8000)),
-        host="0.0.0.0"
-    )
+    ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=int(os.getenv("PORT", 8000)))
