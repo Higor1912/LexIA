@@ -1,7 +1,7 @@
 import flet as ft
 import httpx
 import os
-os.environ["FLET_DISABLE_CLIPBOARD"] = "1"
+import asyncio
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
@@ -63,6 +63,16 @@ def main(page: ft.Page):
         text_style=ft.TextStyle(color=ft.colors.WHITE),
     )
 
+    # Função síncrona para chamada HTTP
+    def enviar_pergunta_sync(pergunta):
+        try:
+            response = httpx.post(BACKEND_URL, json={"pergunta": pergunta}, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            return {"erro": str(e)}
+
+    # Função assíncrona que roda a função acima em thread separada
     async def enviar_pergunta(event):
         pergunta = campo_texto.value.strip()
         if not pergunta:
@@ -70,21 +80,15 @@ def main(page: ft.Page):
         resposta_ia.value = "Pensando..."
         page.update()
 
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(BACKEND_URL, json={"pergunta": pergunta}, timeout=30)
-                response.raise_for_status()
-                data = response.json()
-                resposta_ia.value = data.get("resposta") or data.get("erro") or "Sem resposta."
-            except Exception as e:
-                resposta_ia.value = f"Erro na comunicação: {e}"
+        data = await asyncio.to_thread(enviar_pergunta_sync, pergunta)
+        resposta_ia.value = data.get("resposta") or data.get("erro") or "Sem resposta."
         campo_texto.value = ""
         page.update()
 
     enviar_btn = ft.IconButton(
         icon=ft.icons.SEND,
         icon_color=ft.colors.CYAN_200,
-        on_click=enviar_pergunta,  # <-- corrigido aqui
+        on_click=enviar_pergunta,
     )
 
     input_area = ft.Row(
