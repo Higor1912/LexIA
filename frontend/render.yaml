@@ -1,12 +1,14 @@
+# render.yaml para seu front Flet Web
+
 services:
   - type: web
     name: lexia-frontend
     env: python
     plan: free
-    branch: main
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python main.py"
-    autoDeploy: true
     envVars:
       - key: PORT
         value: "8000"
+    # Se você quer que Render detecte a porta automaticamente:
+      automaticPort: true
