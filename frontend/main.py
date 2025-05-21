@@ -1,6 +1,7 @@
 import flet as ft
 import httpx
 import os
+os.environ["FLET_DISABLE_CLIPBOARD"] = "1"
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
