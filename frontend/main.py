@@ -1,5 +1,4 @@
 import flet as ft
-from flet.icons import SEND
 import httpx
 
 API_URL = "https://lexia-backend.onrender.com/pergunta"
@@ -7,7 +6,7 @@ API_URL = "https://lexia-backend.onrender.com/pergunta"
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "#000000"
+    page.bgcolor = "#000000"  # Cor preta em hex
     page.scroll = ft.ScrollMode.AUTO
 
     txt_question = ft.TextField(
@@ -51,7 +50,9 @@ def main(page: ft.Page):
         ft.Row(
             controls=[
                 txt_question,
-                ft.IconButton(icon=SEND, on_click=send_message),
+                ft.IconButton(icon="send", on_click=send_message),
+                # Se quiser usar botão texto, substitua a linha acima por:
+                # ft.ElevatedButton(text="Enviar ➤", on_click=send_message),
             ],
             spacing=10
         ),
