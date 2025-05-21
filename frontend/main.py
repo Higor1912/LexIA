@@ -109,7 +109,8 @@ def main(page: ft.Page):
         )
     )
 
-ft.app(
+if __name__ == "__main__":
+    ft.app(
         target=main,
         view=ft.AppView.WEB_BROWSER,
         port=int(os.getenv("PORT", 8000)),
