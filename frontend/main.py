@@ -1,4 +1,6 @@
 import flet as ft
+from flet_core.icons import SEND
+from flet_core.colors import BLACK, CYAN_200, WHITE, GREY_400, BLUE_GREY_700, BLUE_GREY_900
 import httpx
 import os
 import asyncio
@@ -8,12 +10,12 @@ BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "black"
+    page.bgcolor = BLACK
     page.padding = 20
 
     resposta_ia = ft.Text(
         value="Olá! Sou a LexIA. Em que posso ajudar?",
-        color="white",
+        color=WHITE,
         size=16,
         selectable=True,
         text_align=ft.TextAlign.CENTER,
@@ -22,7 +24,7 @@ def main(page: ft.Page):
 
     titulo = ft.Text(
         "LexIA",
-        color="cyan200",
+        color=CYAN_200,
         size=36,
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
@@ -35,8 +37,8 @@ def main(page: ft.Page):
 
     sugestao_cards = [
         ft.Container(
-            content=ft.Text(sugestao, color="white", size=18, weight=ft.FontWeight.W_600),
-            bgcolor="bluegrey700",
+            content=ft.Text(sugestao, color=WHITE, size=18, weight=ft.FontWeight.W_600),
+            bgcolor=BLUE_GREY_700,
             padding=20,
             border_radius=15,
             width=280,
@@ -58,9 +60,9 @@ def main(page: ft.Page):
         filled=True,
         expand=True,
         border_radius=15,
-        bgcolor="bluegrey900",
-        hint_style=ft.TextStyle(color="grey400"),
-        text_style=ft.TextStyle(color="white"),
+        bgcolor=BLUE_GREY_900,
+        hint_style=ft.TextStyle(color=GREY_400),
+        text_style=ft.TextStyle(color=WHITE),
     )
 
     def enviar_pergunta_sync(pergunta):
@@ -84,8 +86,8 @@ def main(page: ft.Page):
         page.update()
 
     enviar_btn = ft.IconButton(
-        icon=ft.icons.SEND,
-        icon_color="cyan200",
+        icon=SEND,
+        icon_color=CYAN_200,
         on_click=enviar_pergunta,
     )
 
