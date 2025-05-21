@@ -1,19 +1,20 @@
 import flet as ft
 import httpx
-import os
 import asyncio
+import os
+from flet import Colors, Icons  # Importação correta na versão 0.28.2+
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = ft.colors.BLACK
+    page.bgcolor = Colors.BLACK
     page.padding = 20
 
     resposta_ia = ft.Text(
         value="Olá! Sou a LexIA. Em que posso ajudar?",
-        color=ft.colors.WHITE,
+        color=Colors.WHITE,
         size=16,
         selectable=True,
         text_align=ft.TextAlign.CENTER,
@@ -22,21 +23,18 @@ def main(page: ft.Page):
 
     titulo = ft.Text(
         "LexIA",
-        color=ft.colors.CYAN_200,
+        color=Colors.CYAN_200,
         size=36,
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
     )
 
-    sugestoes = [
-        "Como abrir um processo?",
-        "Direitos trabalhistas"
-    ]
+    sugestoes = ["Como abrir um processo?", "Direitos trabalhistas"]
 
     sugestao_cards = [
         ft.Container(
-            content=ft.Text(sugestao, color=ft.colors.WHITE, size=18, weight=ft.FontWeight.W_600),
-            bgcolor=ft.colors.BLUE_GREY_700,
+            content=ft.Text(sugestao, color=Colors.WHITE, size=18, weight=ft.FontWeight.W_600),
+            bgcolor=Colors.BLUE_GREY_700,
             padding=20,
             border_radius=15,
             width=280,
@@ -58,9 +56,9 @@ def main(page: ft.Page):
         filled=True,
         expand=True,
         border_radius=15,
-        bgcolor=ft.colors.BLUE_GREY_900,
-        hint_style=ft.TextStyle(color=ft.colors.GREY_400),
-        text_style=ft.TextStyle(color=ft.colors.WHITE),
+        bgcolor=Colors.BLUE_GREY_900,
+        hint_style=ft.TextStyle(color=Colors.GREY_400),
+        text_style=ft.TextStyle(color=Colors.WHITE),
     )
 
     def enviar_pergunta_sync(pergunta):
@@ -84,8 +82,8 @@ def main(page: ft.Page):
         page.update()
 
     enviar_btn = ft.IconButton(
-        icon=ft.icons.SEND,
-        icon_color=ft.colors.CYAN_200,
+        icon=Icons.SEND,  # Corrigido aqui
+        icon_color=Colors.CYAN_200,
         on_click=enviar_pergunta,
     )
 
