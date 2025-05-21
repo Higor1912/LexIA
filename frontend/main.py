@@ -1,5 +1,4 @@
-import flet as ft 
-import asyncio
+import flet as ft
 import httpx
 import os
 
@@ -63,7 +62,7 @@ def main(page: ft.Page):
         text_style=ft.TextStyle(color=ft.colors.WHITE),
     )
 
-    async def enviar_pergunta(_):
+    async def enviar_pergunta(event):
         pergunta = campo_texto.value.strip()
         if not pergunta:
             return
@@ -84,7 +83,7 @@ def main(page: ft.Page):
     enviar_btn = ft.IconButton(
         icon=ft.icons.SEND,
         icon_color=ft.colors.CYAN_200,
-        on_click=lambda e: asyncio.create_task(enviar_pergunta(e)),
+        on_click=enviar_pergunta,  # <-- corrigido aqui
     )
 
     input_area = ft.Row(
@@ -110,5 +109,5 @@ def main(page: ft.Page):
         )
     )
 
-# Detecta porta automaticamente em ambientes como Render
+# Detecta porta automaticamente (usado no Render)
 ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=int(os.getenv("PORT", 8000)))
