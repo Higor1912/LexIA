@@ -1,19 +1,19 @@
 import flet as ft
 import asyncio
 import httpx
-import os  # Import necessário para usar os.getenv()
+import os
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = ft.Colors.BLACK
+    page.bgcolor = ft.colors.BLACK
     page.padding = 20
 
     resposta_ia = ft.Text(
         value="Olá! Sou a LexIA. Em que posso ajudar?",
-        color=ft.Colors.WHITE,
+        color=ft.colors.WHITE,
         size=16,
         selectable=True,
         text_align=ft.TextAlign.CENTER,
@@ -22,7 +22,7 @@ def main(page: ft.Page):
 
     titulo = ft.Text(
         "LexIA",
-        color=ft.Colors.CYAN_200,
+        color=ft.colors.CYAN_200,
         size=36,
         weight=ft.FontWeight.W_700,
         text_align=ft.TextAlign.CENTER,
@@ -35,8 +35,8 @@ def main(page: ft.Page):
 
     sugestao_cards = [
         ft.Container(
-            content=ft.Text(sugestao, color=ft.Colors.WHITE, size=18, weight=ft.FontWeight.W_600),
-            bgcolor=ft.Colors.BLUE_GREY_700,
+            content=ft.Text(sugestao, color=ft.colors.WHITE, size=18, weight=ft.FontWeight.W_600),
+            bgcolor=ft.colors.BLUE_GREY_700,
             padding=20,
             border_radius=15,
             width=280,
@@ -58,9 +58,9 @@ def main(page: ft.Page):
         filled=True,
         expand=True,
         border_radius=15,
-        bgcolor=ft.Colors.BLUE_GREY_900,
-        hint_style=ft.TextStyle(color=ft.Colors.GREY_400),
-        text_style=ft.TextStyle(color=ft.Colors.WHITE),
+        bgcolor=ft.colors.BLUE_GREY_900,
+        hint_style=ft.TextStyle(color=ft.colors.GREY_400),
+        text_style=ft.TextStyle(color=ft.colors.WHITE),
     )
 
     async def enviar_pergunta(_):
@@ -83,7 +83,7 @@ def main(page: ft.Page):
 
     enviar_btn = ft.IconButton(
         icon=ft.Icons.SEND,
-        icon_color=ft.Colors.CYAN_200,
+        icon_color=ft.colors.CYAN_200,
         on_click=lambda e: asyncio.create_task(enviar_pergunta(e)),
     )
 
@@ -110,11 +110,10 @@ def main(page: ft.Page):
         )
     )
 
-# 🚀 Render exige binding na porta e host corretos:
 if __name__ == "__main__":
     ft.app(
         target=main,
         view=ft.AppView.WEB_BROWSER,
-        port=int(os.getenv("PORT", 8000)),  # Render fornece a porta via env var
-        host="0.0.0.0"  # Necessário para escutar fora do localhost
+        port=int(os.getenv("PORT", 8000)),
+        host="0.0.0.0"
     )
