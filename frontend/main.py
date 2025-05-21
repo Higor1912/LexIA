@@ -1,116 +1,59 @@
 import flet as ft
 import httpx
-import os
-import asyncio
 
-BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
+API_URL = "http://localhost:3001/pergunta"  # ou o seu endpoint
 
 def main(page: ft.Page):
     page.title = "LexIA"
-    page.theme = ft.Theme(color_scheme=ft.ColorScheme(primary=ft.colors.CYAN))
+    page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = ft.colors.BLACK
-    page.padding = 20
+    page.scroll = ft.ScrollMode.AUTO
 
-    resposta_ia = ft.Text(
-        value="Olá! Sou a LexIA. Em que posso ajudar?",
-        color=ft.colors.WHITE,
-        size=16,
-        selectable=True,
-        text_align=ft.TextAlign.CENTER,
+    txt_question = ft.TextField(
+        label="Digite sua pergunta jurídica",
+        multiline=True,
         expand=True,
+        min_lines=1,
+        max_lines=5,
+        border_radius=10,
     )
 
-    titulo = ft.Text(
-        "LexIA",
-        color=ft.colors.CYAN_200,
-        size=36,
-        weight=ft.FontWeight.W_700,
-        text_align=ft.TextAlign.CENTER,
-    )
+    chat = ft.Column(expand=True, scroll=ft.ScrollMode.ALWAYS)
 
-    sugestoes = [
-        "Como abrir um processo?",
-        "Direitos trabalhistas"
-    ]
-
-    sugestao_cards = [
-        ft.Container(
-            content=ft.Text(sugestao, color=ft.colors.WHITE, size=18, weight=ft.FontWeight.W_600),
-            bgcolor=ft.colors.BLUE_GREY_700,
-            padding=20,
-            border_radius=15,
-            width=280,
-            height=100,
-            alignment=ft.alignment.center,
-        )
-        for sugestao in sugestoes
-    ]
-
-    cards_row = ft.Row(
-        controls=sugestao_cards,
-        scroll=ft.ScrollMode.AUTO,
-        alignment=ft.MainAxisAlignment.CENTER,
-        spacing=20,
-    )
-
-    campo_texto = ft.TextField(
-        hint_text="Digite sua pergunta...",
-        filled=True,
-        expand=True,
-        border_radius=15,
-        bgcolor=ft.colors.BLUE_GREY_900,
-        hint_style=ft.TextStyle(color=ft.colors.GREY_400),
-        text_style=ft.TextStyle(color=ft.colors.WHITE),
-    )
-
-    def enviar_pergunta_sync(pergunta):
-        try:
-            response = httpx.post(BACKEND_URL, json={"pergunta": pergunta}, timeout=30)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            return {"erro": str(e)}
-
-    async def enviar_pergunta(event):
-        pergunta = campo_texto.value.strip()
-        if not pergunta:
+    def send_message(e=None):
+        question = txt_question.value.strip()
+        if not question:
             return
-        resposta_ia.value = "Pensando..."
+
+        chat.controls.append(ft.Text(f"Você: {question}", color=ft.colors.CYAN))
+        txt_question.value = ""
         page.update()
 
-        data = await asyncio.to_thread(enviar_pergunta_sync, pergunta)
-        resposta_ia.value = data.get("resposta") or data.get("erro") or "Sem resposta."
-        campo_texto.value = ""
+        try:
+            response = httpx.post(API_URL, json={"pergunta": question})
+            if response.status_code == 200:
+                resposta = response.json().get("resposta", "Erro ao obter resposta.")
+                chat.controls.append(ft.Text(f"LexIA: {resposta}", color=ft.colors.AMBER))
+            else:
+                chat.controls.append(ft.Text("Erro no servidor!", color=ft.colors.RED))
+        except Exception as err:
+            chat.controls.append(ft.Text(f"Erro: {err}", color=ft.colors.RED))
+
         page.update()
-
-    enviar_btn = ft.IconButton(
-        icon=ft.icons.SEND,
-        icon_color=ft.colors.CYAN_200,
-        on_click=enviar_pergunta,
-    )
-
-    input_area = ft.Row(
-        controls=[campo_texto, enviar_btn],
-        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-        spacing=10,
-    )
 
     page.add(
-        ft.Column(
-            controls=[
-                titulo,
-                resposta_ia,
-                cards_row,
-                ft.Container(
-                    content=input_area,
-                    alignment=ft.alignment.bottom_center,
-                    padding=10,
-                )
-            ],
+        ft.Container(
+            content=chat,
             expand=True,
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        )
+            padding=10
+        ),
+        ft.Row(
+            controls=[
+                txt_question,
+                ft.IconButton(icon=ft.icons.SEND, on_click=send_message),
+            ],
+            spacing=10
+        ),
     )
 
-# Detecta porta automaticamente (usado no Render)
-ft.app(target=main, view=ft.AppView.WEB_BROWSER, port=int(os.getenv("PORT", 8000)))
+ft.app(target=main)
