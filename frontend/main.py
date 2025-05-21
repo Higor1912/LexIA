@@ -1,13 +1,15 @@
 import flet as ft
 import httpx
 
-API_URL = "http://localhost:3001/pergunta"  # ou o seu endpoint
+API_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = ft.colors.BLACK
     page.scroll = ft.ScrollMode.AUTO
+
+    # Se estiver tendo erro com ft.colors, troque para ft.colors_ (como abaixo):
+    page.bgcolor = ft.colors_.BLACK
 
     txt_question = ft.TextField(
         label="Digite sua pergunta jurídica",
@@ -25,7 +27,7 @@ def main(page: ft.Page):
         if not question:
             return
 
-        chat.controls.append(ft.Text(f"Você: {question}", color=ft.colors.CYAN))
+        chat.controls.append(ft.Text(f"Você: {question}", color=ft.colors_.CYAN))
         txt_question.value = ""
         page.update()
 
@@ -33,11 +35,11 @@ def main(page: ft.Page):
             response = httpx.post(API_URL, json={"pergunta": question})
             if response.status_code == 200:
                 resposta = response.json().get("resposta", "Erro ao obter resposta.")
-                chat.controls.append(ft.Text(f"LexIA: {resposta}", color=ft.colors.AMBER))
+                chat.controls.append(ft.Text(f"LexIA: {resposta}", color=ft.colors_.AMBER))
             else:
-                chat.controls.append(ft.Text("Erro no servidor!", color=ft.colors.RED))
+                chat.controls.append(ft.Text("Erro no servidor!", color=ft.colors_.RED))
         except Exception as err:
-            chat.controls.append(ft.Text(f"Erro: {err}", color=ft.colors.RED))
+            chat.controls.append(ft.Text(f"Erro: {err}", color=ft.colors_.RED))
 
         page.update()
 
