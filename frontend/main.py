@@ -1,6 +1,7 @@
 import flet as ft
 import asyncio
-import httpx  # vamos usar httpx para requisições async
+import httpx
+import os  # Import necessário para usar os.getenv()
 
 BACKEND_URL = "https://lexia-backend.onrender.com/pergunta"
 
@@ -109,10 +110,11 @@ def main(page: ft.Page):
         )
     )
 
+# 🚀 Render exige binding na porta e host corretos:
 if __name__ == "__main__":
     ft.app(
         target=main,
         view=ft.AppView.WEB_BROWSER,
-        port=int(os.getenv("PORT", 8000)),
-        host="0.0.0.0"
+        port=int(os.getenv("PORT", 8000)),  # Render fornece a porta via env var
+        host="0.0.0.0"  # Necessário para escutar fora do localhost
     )
