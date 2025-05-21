@@ -1,15 +1,13 @@
 import flet as ft
 import httpx
 
-API_URL = "https://lexia-backend.onrender.com/pergunta"
+API_URL = "https://lexia-backend.onrender.com/pergunta"  # altere para seu backend online
 
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.scroll = ft.ScrollMode.AUTO
-
-    # Se estiver tendo erro com ft.colors, troque para ft.colors_ (como abaixo):
     page.bgcolor = ft.colors_.BLACK
+    page.scroll = ft.ScrollMode.AUTO
 
     txt_question = ft.TextField(
         label="Digite sua pergunta jurídica",
