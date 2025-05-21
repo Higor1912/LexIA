@@ -1,12 +1,13 @@
 import flet as ft
+from flet.icons import SEND
 import httpx
 
-API_URL = "https://lexia-backend.onrender.com/pergunta"  # seu backend
+API_URL = "https://lexia-backend.onrender.com/pergunta"
 
 def main(page: ft.Page):
     page.title = "LexIA"
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "#000000"  # preto
+    page.bgcolor = "#000000"
     page.scroll = ft.ScrollMode.AUTO
 
     txt_question = ft.TextField(
@@ -25,7 +26,7 @@ def main(page: ft.Page):
         if not question:
             return
 
-        chat.controls.append(ft.Text(f"Você: {question}", color="#00FFFF"))  # ciano
+        chat.controls.append(ft.Text(f"Você: {question}", color="#00FFFF"))
         txt_question.value = ""
         page.update()
 
@@ -33,11 +34,11 @@ def main(page: ft.Page):
             response = httpx.post(API_URL, json={"pergunta": question})
             if response.status_code == 200:
                 resposta = response.json().get("resposta", "Erro ao obter resposta.")
-                chat.controls.append(ft.Text(f"LexIA: {resposta}", color="#FFBF00"))  # âmbar
+                chat.controls.append(ft.Text(f"LexIA: {resposta}", color="#FFBF00"))
             else:
-                chat.controls.append(ft.Text("Erro no servidor!", color="#FF0000"))  # vermelho
+                chat.controls.append(ft.Text("Erro no servidor!", color="#FF0000"))
         except Exception as err:
-            chat.controls.append(ft.Text(f"Erro: {err}", color="#FF0000"))  # vermelho
+            chat.controls.append(ft.Text(f"Erro: {err}", color="#FF0000"))
 
         page.update()
 
@@ -50,7 +51,7 @@ def main(page: ft.Page):
         ft.Row(
             controls=[
                 txt_question,
-                ft.IconButton(icon=ft.icons.SEND, on_click=send_message),
+                ft.IconButton(icon=SEND, on_click=send_message),
             ],
             spacing=10
         ),
