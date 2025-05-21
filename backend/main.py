@@ -1,28 +1,41 @@
+import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-# Configura a chave da API do Gemini
-genai.configure(api_key="SUA_API_KEY")
+# Carrega variáveis do arquivo .env (para uso local)
+load_dotenv()
 
-# Instancia o modelo Gemini-Pro corretamente
+# Configura a chave da API a partir da variável de ambiente
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise ValueError("A variável de ambiente GOOGLE_API_KEY não está definida")
+
+genai.configure(api_key=api_key)
+
+# Instancia o modelo Gemini-Pro
 model = genai.GenerativeModel(model_name="models/gemini-pro")
 
-# Criação da aplicação FastAPI
+# Cria app FastAPI
 app = FastAPI()
 
-# Middleware CORS
+# Configura CORS para permitir acesso do frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Ajuste para seu domínio em produção
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Rota principal
-@app.post("/pergunta")
-async def responder(pergunta: dict):
-    resposta = model.generate_content(pergunta["mensagem"])
-    return {"resposta": resposta.text}
+# Modelo para receber a pergunta via JSON
+class Pergunta(BaseModel):
+    mensagem: str
 
+# Endpoint para responder pergunta
+@app.post("/pergunta")
+async def responder(pergunta: Pergunta):
+    resposta = model.generate_content(pergunta.mensagem)
+    return {"resposta": resposta.text}
