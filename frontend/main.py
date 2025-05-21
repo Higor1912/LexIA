@@ -38,14 +38,16 @@ def main(page: ft.Page):
         page.update()
 
         try:
-            response = httpx.post(API_URL, json={"pergunta": question})
+            response = httpx.post(API_URL, json={"mensagem": question})
             if response.status_code == 200:
                 resposta = response.json().get("resposta", "Erro ao obter resposta.")
                 chat.controls.append(
                     ft.Text(f"LexIA: {resposta}", color="#FFBF00", size=14)
                 )
             else:
-                chat.controls.append(ft.Text("Erro no servidor!", color="#FF0000", size=14))
+                chat.controls.append(
+                    ft.Text(f"Erro no servidor: {response.status_code} - {response.text}", color="#FF0000", size=14)
+                )
         except Exception as err:
             chat.controls.append(ft.Text(f"Erro: {err}", color="#FF0000", size=14))
 
